@@ -1,65 +1,140 @@
-import Image from "next/image";
+import Header from '@/components/layout/Header'
+import Link from 'next/link'
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <>
+      <Header />
+      <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '0 20px' }}>
+
+        <section style={{ padding: '56px 0 48px', textAlign: 'center' }}>
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontSize: '12px',
+            color: 'var(--pink)',
+            background: 'var(--pink-bg)',
+            border: '1px solid var(--pink-border)',
+            padding: '4px 14px',
+            borderRadius: '99px',
+            marginBottom: '20px',
+          }}>
+            ファンクラブ特化型クラウドファンディング
+          </div>
+
+          <h1 style={{
+            fontSize: 'clamp(38px, 6vw, 60px)',
+            fontWeight: '700',
+            lineHeight: '1.1',
+            marginBottom: '16px',
+          }}>
+            推しを<span style={{ color: 'var(--pink)' }}>デビュー</span>させよう。
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+
+          <p style={{
+            fontSize: '15px',
+            color: 'var(--muted)',
+            maxWidth: '500px',
+            margin: '0 auto 32px',
+            lineHeight: '1.8',
+          }}>
+            ポイントを買って好きなクリエイターに投げる。目標達成でチャンネルが開設される、新しい応援のかたち。
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link href="/projects" style={{
+              background: 'var(--pink)',
+              color: '#fff',
+              padding: '13px 28px',
+              borderRadius: '16px',
+              fontSize: '15px',
+              fontWeight: '500',
+              textDecoration: 'none',
+            }}>
+              プロジェクトを探す
+            </Link>
+            <Link href="/signup" style={{
+              background: 'var(--bg3)',
+              color: 'var(--text)',
+              border: '1px solid var(--border)',
+              padding: '13px 28px',
+              borderRadius: '16px',
+              fontSize: '15px',
+              fontWeight: '500',
+              textDecoration: 'none',
+            }}>
+              無料で始める
+            </Link>
+          </div>
+
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginTop: '48px',
+            borderTop: '1px solid var(--border)',
+            paddingTop: '32px',
+          }}>
+            {[
+              { num: '1,248', label: 'サポーター' },
+              { num: '24', label: '進行中プロジェクト' },
+              { num: '8', label: '達成チャンネル' },
+              { num: '¥0', label: '手数料（サポーター）' },
+            ].map((s, i) => (
+              <div key={i} style={{
+                flex: 1,
+                textAlign: 'center',
+                padding: '0 24px',
+                borderRight: i < 3 ? '1px solid var(--border)' : 'none',
+              }}>
+                <div style={{ fontSize: '26px', fontWeight: '700', color: 'var(--pink)' }}>{s.num}</div>
+                <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '2px' }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section style={{ paddingBottom: '60px' }}>
+          <div style={{ marginBottom: '18px' }}>
+            <div style={{ fontSize: '11px', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '4px' }}>現在募集中</div>
+            <div style={{ fontSize: '18px', fontWeight: '700' }}>注目のプロジェクト</div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: '18px' }}>
+            {[
+              { emoji: '🎵', bg: 'linear-gradient(135deg,#fde8ef,#fcd0dd)', creator: 'あかり', title: '弾き語りチャンネルを開設して音楽の世界を広げたい', pct: 82, color: 'var(--pink)' },
+              { emoji: '🎮', bg: 'linear-gradient(135deg,#e8f8f2,#c8f0e4)', creator: 'けんた', title: 'ゲーム実況チャンネルで毎日配信を届けたい', pct: 45, color: 'var(--teal)' },
+              { emoji: '💄', bg: 'linear-gradient(135deg,#fef8e8,#faecc8)', creator: 'みき', title: 'コスメ・ファッションの本音レビューを発信したい', pct: 60, color: 'var(--amber)' },
+            ].map((p, i) => (
+              <Link key={i} href={`/projects/${i + 1}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div style={{
+                  background: 'var(--bg2)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '14px',
+                  overflow: 'hidden',
+                  cursor: 'pointer',
+                  boxShadow: '0 1px 3px rgba(0,0,0,.06)',
+                }}>
+                  <div style={{ height: '160px', background: p.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '52px' }}>
+                    {p.emoji}
+                  </div>
+                  <div style={{ padding: '16px 18px' }}>
+                    <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '8px' }}>{p.creator}</div>
+                    <div style={{ fontSize: '14px', fontWeight: '700', lineHeight: '1.5', marginBottom: '12px' }}>{p.title}</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--muted)', marginBottom: '7px' }}>
+                      <span style={{ fontWeight: '700', color: p.color }}>{p.pct}%</span>
+                      <span>100,000 pt 目標</span>
+                    </div>
+                    <div style={{ height: '8px', background: 'var(--bg3)', borderRadius: '99px', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${p.pct}%`, background: p.color, borderRadius: '99px' }} />
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
       </main>
-    </div>
-  );
+    </>
+  )
 }

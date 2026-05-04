@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  turbopack: {
+    // ワークスペース推定で親リポジトリの lockfile を拾わないよう明示
+    root: __dirname,
+  },
 };
 
 export default nextConfig;
