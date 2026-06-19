@@ -1,10 +1,17 @@
 import type { Metadata } from 'next'
-import { Noto_Sans_JP } from 'next/font/google'
+import { Inter, M_PLUS_Rounded_1c } from 'next/font/google'
 import './globals.css'
 
-const notoSansJP = Noto_Sans_JP({
+const inter = Inter({
   subsets: ['latin'],
   weight: ['300', '400', '500', '700'],
+  variable: '--font-inter',
+})
+
+const mPlusRounded = M_PLUS_Rounded_1c({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '700'],
+  variable: '--font-rounded',
 })
 
 export const metadata: Metadata = {
@@ -18,8 +25,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ja">
-      <body className={notoSansJP.className}>
+    <html lang="ja" className={`${inter.variable} ${mPlusRounded.variable}`}>
+      <body>
         {children}
       </body>
     </html>

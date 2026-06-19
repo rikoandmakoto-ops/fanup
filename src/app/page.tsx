@@ -7,36 +7,39 @@ export default function Home() {
       <Header />
       <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '0 20px' }}>
 
-        <section style={{ padding: '56px 0 48px', textAlign: 'center' }}>
+        {/* ヒーローセクション */}
+        <section style={{ padding: '64px 0 48px', textAlign: 'center' }}>
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: '6px',
             fontSize: '12px',
-            color: 'var(--pink)',
-            background: 'var(--pink-bg)',
-            border: '1px solid var(--pink-border)',
-            padding: '4px 14px',
+            color: '#7C3AED',
+            background: '#EDE9FE',
+            border: '1px solid #C4B5FD',
+            padding: '5px 16px',
             borderRadius: '99px',
-            marginBottom: '20px',
+            marginBottom: '24px',
+            fontWeight: '500',
           }}>
             ファンクラブ特化型クラウドファンディング
           </div>
 
           <h1 style={{
-            fontSize: 'clamp(38px, 6vw, 60px)',
+            fontSize: 'clamp(38px, 6vw, 56px)',
             fontWeight: '700',
-            lineHeight: '1.1',
+            lineHeight: '1.15',
             marginBottom: '16px',
+            letterSpacing: '-1px',
           }}>
-            推しを<span style={{ color: 'var(--pink)' }}>デビュー</span>させよう。
+            推しを<span style={{ color: '#7C3AED' }}>デビュー</span>させよう。
           </h1>
 
           <p style={{
             fontSize: '15px',
-            color: 'var(--muted)',
-            maxWidth: '500px',
-            margin: '0 auto 32px',
+            color: '#737373',
+            maxWidth: '480px',
+            margin: '0 auto 36px',
             lineHeight: '1.8',
           }}>
             ポイントを買って好きなクリエイターに投げる。目標達成でチャンネルが開設される、新しい応援のかたち。
@@ -44,22 +47,23 @@ export default function Home() {
 
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link href="/projects" style={{
-              background: 'var(--pink)',
+              background: '#7C3AED',
               color: '#fff',
-              padding: '13px 28px',
-              borderRadius: '16px',
+              padding: '14px 32px',
+              borderRadius: '99px',
               fontSize: '15px',
-              fontWeight: '500',
+              fontWeight: '600',
               textDecoration: 'none',
+              boxShadow: '0 2px 8px rgba(124,58,237,0.3)',
             }}>
               プロジェクトを探す
             </Link>
             <Link href="/signup" style={{
-              background: 'var(--bg3)',
-              color: 'var(--text)',
-              border: '1px solid var(--border)',
-              padding: '13px 28px',
-              borderRadius: '16px',
+              background: '#fff',
+              color: '#1a1a1a',
+              border: '1.5px solid #e5e5e5',
+              padding: '14px 32px',
+              borderRadius: '99px',
               fontSize: '15px',
               fontWeight: '500',
               textDecoration: 'none',
@@ -68,11 +72,12 @@ export default function Home() {
             </Link>
           </div>
 
+          {/* スタッツ */}
           <div style={{
             display: 'flex',
             justifyContent: 'center',
-            marginTop: '48px',
-            borderTop: '1px solid var(--border)',
+            marginTop: '52px',
+            borderTop: '1px solid #e5e5e5',
             paddingTop: '32px',
           }}>
             {[
@@ -85,47 +90,105 @@ export default function Home() {
                 flex: 1,
                 textAlign: 'center',
                 padding: '0 24px',
-                borderRight: i < 3 ? '1px solid var(--border)' : 'none',
+                borderRight: i < 3 ? '1px solid #e5e5e5' : 'none',
               }}>
-                <div style={{ fontSize: '26px', fontWeight: '700', color: 'var(--pink)' }}>{s.num}</div>
-                <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '2px' }}>{s.label}</div>
+                <div style={{ fontSize: '28px', fontWeight: '700', color: '#7C3AED' }}>{s.num}</div>
+                <div style={{ fontSize: '12px', color: '#737373', marginTop: '4px' }}>{s.label}</div>
               </div>
             ))}
           </div>
         </section>
 
+        {/* 注目のクリエイター（FeetFinder風のプロフィールカード） */}
+        <section style={{ paddingBottom: '48px' }}>
+          <div style={{ marginBottom: '20px' }}>
+            <div style={{ fontSize: '11px', letterSpacing: '.1em', textTransform: 'uppercase', color: '#737373', marginBottom: '4px' }}>FEATURED</div>
+            <div style={{ fontSize: '20px', fontWeight: '700' }}>注目のクリエイター</div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '18px' }}>
+            {[
+              { id: '1', name: 'あかり', cat: '音楽・弾き語り', avatar: '🎵', color: 'linear-gradient(135deg, #a78bfa, #7c3aed)', followers: 134, projects: 2 },
+              { id: '2', name: 'けんた', cat: 'ゲーム実況', avatar: '🎮', color: 'linear-gradient(135deg, #6ee7b7, #059669)', followers: 67, projects: 1 },
+              { id: '3', name: 'みき', cat: 'コスメ・ファッション', avatar: '💄', color: 'linear-gradient(135deg, #fbbf24, #d97706)', followers: 89, projects: 1 },
+            ].map(c => (
+              <Link key={c.id} href={`/creators/${c.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div className="card" style={{ cursor: 'pointer', transition: 'box-shadow 0.2s' }}>
+                  {/* ミニカバー */}
+                  <div style={{ height: '80px', background: c.color }} />
+                  <div style={{ padding: '0 18px 18px', position: 'relative' }}>
+                    {/* アバター */}
+                    <div style={{
+                      width: '64px',
+                      height: '64px',
+                      borderRadius: '50%',
+                      border: '3px solid #fff',
+                      background: '#EDE9FE',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '28px',
+                      marginTop: '-32px',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+                    }}>
+                      {c.avatar}
+                    </div>
+                    <div style={{ marginTop: '10px' }}>
+                      <div style={{ fontSize: '16px', fontWeight: '700' }}>{c.name}</div>
+                      <div style={{ fontSize: '12px', color: '#737373', marginTop: '2px' }}>{c.cat}</div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '20px', marginTop: '12px', fontSize: '13px' }}>
+                      <span><strong>{c.followers}</strong> <span style={{ color: '#737373' }}>サポーター</span></span>
+                      <span><strong>{c.projects}</strong> <span style={{ color: '#737373' }}>プロジェクト</span></span>
+                    </div>
+                    {/* フォローボタン */}
+                    <button style={{
+                      width: '100%',
+                      marginTop: '14px',
+                      padding: '10px',
+                      borderRadius: '10px',
+                      border: '1.5px solid #e5e5e5',
+                      background: '#fff',
+                      fontSize: '13px',
+                      fontWeight: '500',
+                      cursor: 'pointer',
+                      color: '#1a1a1a',
+                    }}>
+                      プロフィールを見る
+                    </button>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* 注目のプロジェクト */}
         <section style={{ paddingBottom: '60px' }}>
-          <div style={{ marginBottom: '18px' }}>
-            <div style={{ fontSize: '11px', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '4px' }}>現在募集中</div>
-            <div style={{ fontSize: '18px', fontWeight: '700' }}>注目のプロジェクト</div>
+          <div style={{ marginBottom: '20px' }}>
+            <div style={{ fontSize: '11px', letterSpacing: '.1em', textTransform: 'uppercase', color: '#737373', marginBottom: '4px' }}>PROJECTS</div>
+            <div style={{ fontSize: '20px', fontWeight: '700' }}>注目のプロジェクト</div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: '18px' }}>
             {[
-              { emoji: '🎵', bg: 'linear-gradient(135deg,#fde8ef,#fcd0dd)', creator: 'あかり', title: '弾き語りチャンネルを開設して音楽の世界を広げたい', pct: 82, color: 'var(--pink)' },
-              { emoji: '🎮', bg: 'linear-gradient(135deg,#e8f8f2,#c8f0e4)', creator: 'けんた', title: 'ゲーム実況チャンネルで毎日配信を届けたい', pct: 45, color: 'var(--teal)' },
-              { emoji: '💄', bg: 'linear-gradient(135deg,#fef8e8,#faecc8)', creator: 'みき', title: 'コスメ・ファッションの本音レビューを発信したい', pct: 60, color: 'var(--amber)' },
-            ].map((p, i) => (
-              <Link key={i} href={`/projects/${i + 1}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                <div style={{
-                  background: 'var(--bg2)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '14px',
-                  overflow: 'hidden',
-                  cursor: 'pointer',
-                  boxShadow: '0 1px 3px rgba(0,0,0,.06)',
-                }}>
+              { id: 1, emoji: '🎵', bg: 'linear-gradient(135deg,#EDE9FE,#DDD6FE)', creator: 'あかり', title: '弾き語りチャンネルを開設して音楽の世界を広げたい', pct: 82 },
+              { id: 2, emoji: '🎮', bg: 'linear-gradient(135deg,#ECFDF5,#D1FAE5)', creator: 'けんた', title: 'ゲーム実況チャンネルで毎日配信を届けたい', pct: 45 },
+              { id: 3, emoji: '💄', bg: 'linear-gradient(135deg,#FFFBEB,#FEF3C7)', creator: 'みき', title: 'コスメ・ファッションの本音レビューを発信したい', pct: 60 },
+            ].map((p) => (
+              <Link key={p.id} href={`/projects/${p.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div className="card" style={{ cursor: 'pointer' }}>
                   <div style={{ height: '160px', background: p.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '52px' }}>
                     {p.emoji}
                   </div>
                   <div style={{ padding: '16px 18px' }}>
-                    <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '8px' }}>{p.creator}</div>
-                    <div style={{ fontSize: '14px', fontWeight: '700', lineHeight: '1.5', marginBottom: '12px' }}>{p.title}</div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--muted)', marginBottom: '7px' }}>
-                      <span style={{ fontWeight: '700', color: p.color }}>{p.pct}%</span>
+                    <div style={{ fontSize: '12px', color: '#737373', marginBottom: '8px' }}>{p.creator}</div>
+                    <div style={{ fontSize: '14px', fontWeight: '700', lineHeight: '1.5', marginBottom: '14px' }}>{p.title}</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#737373', marginBottom: '7px' }}>
+                      <span style={{ fontWeight: '700', color: '#7C3AED' }}>{p.pct}%</span>
                       <span>100,000 pt 目標</span>
                     </div>
-                    <div style={{ height: '8px', background: 'var(--bg3)', borderRadius: '99px', overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${p.pct}%`, background: p.color, borderRadius: '99px' }} />
+                    <div style={{ height: '6px', background: '#f5f5f5', borderRadius: '99px', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${p.pct}%`, background: 'linear-gradient(90deg, #7C3AED, #a78bfa)', borderRadius: '99px' }} />
                     </div>
                   </div>
                 </div>

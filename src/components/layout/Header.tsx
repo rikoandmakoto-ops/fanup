@@ -44,88 +44,105 @@ export default function Header() {
 
   return (
     <nav style={{
-      background: 'rgba(250,250,249,0.92)',
-      backdropFilter: 'blur(12px)',
-      borderBottom: '1px solid #e8e6e1',
+      background: '#fff',
+      borderBottom: '1px solid #e5e5e5',
       position: 'sticky',
       top: 0,
       zIndex: 100,
     }}>
       <div style={{
-        maxWidth: '1000px',
+        maxWidth: '1200px',
         margin: '0 auto',
-        padding: '0 20px',
-        height: '58px',
+        padding: '0 24px',
+        height: '64px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
       }}>
+        {/* ロゴ */}
         <Link href="/" style={{
-          fontFamily: 'Georgia, serif',
-          fontSize: '22px',
-          color: '#1a1916',
+          fontSize: '24px',
+          fontWeight: '700',
+          color: '#7C3AED',
           textDecoration: 'none',
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
+          letterSpacing: '-0.5px',
         }}>
-          <div style={{
-            width: '24px',
-            height: '24px',
-            background: '#d94f68',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="white">
-              <path d="M6 10.5C6 10.5 1 7 1 3.8A2.5 2.5 0 0 1 6 2.7 2.5 2.5 0 0 1 11 3.8C11 7 6 10.5 6 10.5z"/>
-            </svg>
-          </div>
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <circle cx="14" cy="14" r="14" fill="#7C3AED"/>
+            <path d="M14 20C14 20 8 16 8 11.8A3 3 0 0 1 14 10.5 3 3 0 0 1 20 11.8C20 16 14 20 14 20z" fill="white"/>
+          </svg>
           FanUp
         </Link>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {/* ナビリンク */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+          <Link href="/projects" style={{
+            fontSize: '14px',
+            fontWeight: '500',
+            color: '#525252',
+            textDecoration: 'none',
+          }}>
+            クリエイター
+          </Link>
+          <Link href="/projects" style={{
+            fontSize: '14px',
+            fontWeight: '500',
+            color: '#525252',
+            textDecoration: 'none',
+          }}>
+            プロジェクト
+          </Link>
+        </div>
+
+        {/* 右側ボタン */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           {user ? (
             <>
+              {/* 残高バッジ */}
               <div style={{
                 fontSize: '13px',
-                color: '#7a7770',
-                background: '#f4f3f0',
-                border: '1px solid #e8e6e1',
-                padding: '5px 12px',
+                color: '#525252',
+                background: '#f5f5f5',
+                border: '1px solid #e5e5e5',
+                padding: '6px 14px',
                 borderRadius: '99px',
               }}>
-                残高 <strong style={{ color: '#d94f68' }}>{balance.toLocaleString()}</strong> pt
+                <strong style={{ color: '#7C3AED' }}>{balance.toLocaleString()}</strong> pt
               </div>
+              {/* ポイント購入 */}
               <Link href="/buy-points" style={{
-                background: '#d94f68',
+                background: '#7C3AED',
                 color: '#fff',
-                padding: '7px 16px',
+                padding: '8px 18px',
                 borderRadius: '99px',
                 fontSize: '13px',
                 textDecoration: 'none',
-                fontWeight: '500',
+                fontWeight: '600',
               }}>
                 ポイント購入
               </Link>
+              {/* クリエイター */}
               <Link href="/creator" style={{
-                background: '#f4f3f0',
-                color: '#1a1916',
-                border: '1px solid #e8e6e1',
-                padding: '7px 16px',
+                background: '#f5f5f5',
+                color: '#1a1a1a',
+                border: '1px solid #e5e5e5',
+                padding: '8px 18px',
                 borderRadius: '99px',
                 fontSize: '13px',
                 textDecoration: 'none',
                 fontWeight: '500',
               }}>
-                クリエイター
+                ダッシュボード
               </Link>
+              {/* マイページ */}
               <Link href="/mypage" style={{
-                background: '#f4f3f0',
-                color: '#1a1916',
-                border: '1px solid #e8e6e1',
-                padding: '7px 16px',
+                background: '#f5f5f5',
+                color: '#1a1a1a',
+                border: '1px solid #e5e5e5',
+                padding: '8px 18px',
                 borderRadius: '99px',
                 fontSize: '13px',
                 textDecoration: 'none',
@@ -133,13 +150,14 @@ export default function Header() {
               }}>
                 マイページ
               </Link>
+              {/* ログアウト */}
               <button onClick={handleLogout} style={{
                 background: 'none',
                 border: 'none',
                 fontSize: '13px',
-                color: '#7a7770',
+                color: '#737373',
                 cursor: 'pointer',
-                padding: '7px 12px',
+                padding: '8px',
               }}>
                 ログアウト
               </button>
@@ -147,25 +165,25 @@ export default function Header() {
           ) : (
             <>
               <Link href="/login" style={{
-                background: '#f4f3f0',
-                color: '#1a1916',
-                border: '1px solid #e8e6e1',
-                padding: '7px 16px',
+                background: '#fff',
+                color: '#1a1a1a',
+                border: '1.5px solid #e5e5e5',
+                padding: '8px 22px',
                 borderRadius: '99px',
-                fontSize: '13px',
+                fontSize: '14px',
                 textDecoration: 'none',
                 fontWeight: '500',
               }}>
                 ログイン
               </Link>
               <Link href="/signup" style={{
-                background: '#d94f68',
+                background: '#7C3AED',
                 color: '#fff',
-                padding: '7px 16px',
+                padding: '8px 22px',
                 borderRadius: '99px',
-                fontSize: '13px',
+                fontSize: '14px',
                 textDecoration: 'none',
-                fontWeight: '500',
+                fontWeight: '600',
               }}>
                 無料登録
               </Link>

@@ -3,9 +3,9 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 
 const fallbackProjects = [
-  { id: 1, emoji: '🎵', bg: 'linear-gradient(135deg,#fde8ef,#fcd0dd)', badge: '音楽', creator: 'あかり', title: '弾き語りチャンネルを開設して音楽の世界を広げたい', pct: 82, color: '#d94f68', raised: 82000, goal: 100000, days: 8 },
-  { id: 2, emoji: '🎮', bg: 'linear-gradient(135deg,#e8f8f2,#c8f0e4)', badge: 'ゲーム', creator: 'けんた', title: 'ゲーム実況チャンネルで毎日配信を届けたい', pct: 45, color: '#1a9e7a', raised: 45000, goal: 100000, days: 21 },
-  { id: 3, emoji: '💄', bg: 'linear-gradient(135deg,#fef8e8,#faecc8)', badge: 'コスメ', creator: 'みき', title: 'コスメ・ファッションの本音レビューを発信したい', pct: 60, color: '#c98a10', raised: 60000, goal: 100000, days: 14 },
+  { id: 1, emoji: '🎵', bg: 'linear-gradient(135deg,#EDE9FE,#DDD6FE)', badge: '音楽', creator: 'あかり', title: '弾き語りチャンネルを開設して音楽の世界を広げたい', pct: 82, raised: 82000, goal: 100000, days: 8 },
+  { id: 2, emoji: '🎮', bg: 'linear-gradient(135deg,#ECFDF5,#D1FAE5)', badge: 'ゲーム', creator: 'けんた', title: 'ゲーム実況チャンネルで毎日配信を届けたい', pct: 45, raised: 45000, goal: 100000, days: 21 },
+  { id: 3, emoji: '💄', bg: 'linear-gradient(135deg,#FFFBEB,#FEF3C7)', badge: 'コスメ', creator: 'みき', title: 'コスメ・ファッションの本音レビューを発信したい', pct: 60, raised: 60000, goal: 100000, days: 14 },
 ]
 
 export default async function ProjectsPage() {
@@ -26,12 +26,11 @@ export default async function ProjectsPage() {
         return {
           id: p.id,
           emoji: '📌',
-          bg: 'linear-gradient(135deg,#fde8ef,#fcd0dd)',
+          bg: 'linear-gradient(135deg,#EDE9FE,#DDD6FE)',
           badge: creator?.category ?? '',
           creator: creator?.name ?? '',
           title: p.title,
           pct,
-          color: '#d94f68',
           raised: p.current_points,
           goal: p.goal_points,
           days,
@@ -43,31 +42,46 @@ export default async function ProjectsPage() {
     <>
       <Header />
       <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '0 20px' }}>
-        <div style={{ padding: '32px 0 20px' }}>
-          <div style={{ fontSize: '11px', letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '4px' }}>募集中</div>
+        <div style={{ padding: '32px 0 24px' }}>
+          <div style={{ fontSize: '11px', letterSpacing: '.1em', textTransform: 'uppercase', color: '#737373', marginBottom: '4px' }}>PROJECTS</div>
           <div style={{ fontSize: '24px', fontWeight: '700' }}>プロジェクト一覧</div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: '18px', paddingBottom: '60px' }}>
           {projects.map(p => (
             <Link key={p.id} href={`/projects/${p.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-              <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: '14px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,.06)' }}>
+              <div className="card" style={{ cursor: 'pointer' }}>
                 <div style={{ height: '160px', background: p.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '52px' }}>
                   {p.emoji}
                 </div>
                 <div style={{ padding: '16px 18px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                    <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{p.creator}</span>
-                    <span style={{ fontSize: '11px', fontWeight: '500', padding: '2px 8px', borderRadius: '99px', background: 'var(--pink-bg)', color: 'var(--pink)', border: '1px solid var(--pink-border)' }}>{p.badge}</span>
+                    <span style={{ fontSize: '12px', color: '#737373' }}>{p.creator}</span>
+                    <span style={{
+                      fontSize: '11px',
+                      fontWeight: '600',
+                      padding: '3px 10px',
+                      borderRadius: '99px',
+                      background: '#EDE9FE',
+                      color: '#7C3AED',
+                      border: '1px solid #C4B5FD',
+                    }}>
+                      {p.badge}
+                    </span>
                   </div>
-                  <div style={{ fontSize: '14px', fontWeight: '700', lineHeight: '1.5', marginBottom: '12px' }}>{p.title}</div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--muted)', marginBottom: '7px' }}>
-                    <span style={{ fontWeight: '700', color: p.color }}>{p.pct}%</span>
+                  <div style={{ fontSize: '14px', fontWeight: '700', lineHeight: '1.5', marginBottom: '14px' }}>{p.title}</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#737373', marginBottom: '7px' }}>
+                    <span style={{ fontWeight: '700', color: '#7C3AED' }}>{p.pct}%</span>
                     <span>残り {p.days}日</span>
                   </div>
-                  <div style={{ height: '8px', background: 'var(--bg3)', borderRadius: '99px', overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${p.pct}%`, background: p.color, borderRadius: '99px' }} />
+                  <div style={{ height: '6px', background: '#f5f5f5', borderRadius: '99px', overflow: 'hidden' }}>
+                    <div style={{
+                      height: '100%',
+                      width: `${p.pct}%`,
+                      background: 'linear-gradient(90deg, #7C3AED, #a78bfa)',
+                      borderRadius: '99px',
+                    }} />
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--muted)', marginTop: '7px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#737373', marginTop: '7px' }}>
                     <span>{p.raised.toLocaleString()} pt</span>
                     <span>目標 {p.goal.toLocaleString()} pt</span>
                   </div>
