@@ -8,21 +8,30 @@ export default function CancelPage() {
     <>
       <Header />
       <main style={{ maxWidth: '480px', margin: '0 auto', padding: '80px 20px', textAlign: 'center' }}>
-        <div style={{ fontSize: '48px', marginBottom: '16px' }}>😢</div>
-        <div style={{ fontSize: '22px', fontWeight: '700', marginBottom: '8px' }}>購入がキャンセルされました</div>
-        <p style={{ fontSize: '14px', color: '#7a7770', lineHeight: '1.8', marginBottom: '32px' }}>
+        {/* キャンセルアイコン */}
+        <div style={{
+          width: '72px',
+          height: '72px',
+          borderRadius: '50%',
+          background: '#FEF2F2',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          margin: '0 auto 20px',
+        }}>
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <path d="M10 10l12 12M22 10L10 22" stroke="#DC2626" strokeWidth="3" strokeLinecap="round"/>
+          </svg>
+        </div>
+
+        <div style={{ fontSize: '22px', fontWeight: '700', marginBottom: '8px' }}>
+          購入がキャンセルされました
+        </div>
+        <p style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: '1.8', marginBottom: '32px' }}>
           決済は行われていません。<br />
           もう一度お試しいただくか、別のプランをお選びください。
         </p>
-        <Link href="/buy-points" style={{
-          background: '#d94f68',
-          color: '#fff',
-          padding: '12px 28px',
-          borderRadius: '99px',
-          fontSize: '14px',
-          fontWeight: '500',
-          textDecoration: 'none',
-        }}>
+        <Link href="/buy-points" className="btn-primary" style={{ maxWidth: '240px', margin: '0 auto', borderRadius: '99px' }}>
           ポイント購入に戻る
         </Link>
       </main>

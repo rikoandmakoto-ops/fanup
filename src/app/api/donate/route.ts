@@ -9,9 +9,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'ログインが必要です' }, { status: 401 })
   }
 
-  const { project_id, points } = await request.json()
+  let body: { project_id?: unknown; points?: unknown }
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: '無効なリクエストです' }, { status: 400 })
+  }
 
-  if (!project_id || !points || points < 100 || !Number.isInteger(points)) {
+  const { project_id, points } = body
+
+  if (!project_id || typeof points !== 'number' || points < 100 || !Number.isInteger(points) || points > 1000000) {
     return NextResponse.json({ error: '無効なリクエストです' }, { status: 400 })
   }
 
@@ -66,15 +73,24 @@ export async function POST(request: Request) {
     console.error('Donate: point_transactions insert failed', txError)
   }
 
-  // 残高を減算
-  const { error: balanceError } = await supabase
-    .from('profiles')
-    .update({ point_balance: profile.point_balance - points })
-    .eq('id', user.id)
+  // 残高を減算 (RPC で原子的に行うことを試みる)
+  const { error: rpcError } = await supabase.rpc('subtract_points', {
+    target_user_id: user.id,
+    amount: points,
+  })
 
-  if (balanceError) {
-    console.error('Donate: balance update failed', balanceError)
-    return NextResponse.json({ error: '残高の更新に失敗しました' }, { status: 500 })
+  if (rpcError) {
+    // RPC が未作成の場合は直接更新にフォールバック
+    console.warn('Donate: subtract_points RPC not available, falling back to direct update')
+    const { error: balanceError } = await supabase
+      .from('profiles')
+      .update({ point_balance: profile.point_balance - points })
+      .eq('id', user.id)
+
+    if (balanceError) {
+      console.error('Donate: balance update failed', balanceError)
+      return NextResponse.json({ error: '残高の更新に失敗しました' }, { status: 500 })
+    }
   }
 
   // プロジェクトの current_points を加算
@@ -85,6 +101,7 @@ export async function POST(request: Request) {
 
   // RPC が未作成の場合は直接更新にフォールバック
   if (projectError) {
+    console.warn('Donate: add_project_points RPC not available, falling back to direct update')
     const { data: currentProject } = await supabase
       .from('projects')
       .select('current_points')
@@ -99,8 +116,15 @@ export async function POST(request: Request) {
     }
   }
 
+  // 最新の残高を返す
+  const { data: updatedProfile } = await supabase
+    .from('profiles')
+    .select('point_balance')
+    .eq('id', user.id)
+    .single()
+
   return NextResponse.json({
     success: true,
-    new_balance: profile.point_balance - points,
+    new_balance: updatedProfile?.point_balance ?? (profile.point_balance - points),
   })
 }
