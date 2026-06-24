@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { sendProjectSucceededEmail, sendRefundEmail } from '@/lib/email'
 
 // Cron 用のため service role で直接接続
 function createAdminClient() {
@@ -20,9 +21,10 @@ export async function GET(request: Request) {
   const now = new Date().toISOString()
 
   // 期限切れかつ status=active のプロジェクトを取得
+  // 達成通知のため creator → user の email も併せて取得
   const { data: expiredProjects, error: fetchError } = await supabase
     .from('projects')
-    .select('id, title, goal_points, current_points, platform_fee_rate')
+    .select('id, title, goal_points, current_points, platform_fee_rate, creators(user_id)')
     .eq('status', 'active')
     .lt('deadline', now)
 
@@ -46,6 +48,22 @@ export async function GET(request: Request) {
         .from('projects')
         .update({ status: 'succeeded' })
         .eq('id', project.id)
+
+      // クリエイターへ達成通知（best-effort）
+      if (!error) {
+        const creatorRaw = project.creators as unknown as { user_id: string } | { user_id: string }[] | null
+        const creatorUserId = (Array.isArray(creatorRaw) ? creatorRaw[0] : creatorRaw)?.user_id
+        if (creatorUserId) {
+          const { data: creatorProfile } = await supabase
+            .from('profiles')
+            .select('email')
+            .eq('id', creatorUserId)
+            .single()
+          if (creatorProfile?.email) {
+            await sendProjectSucceededEmail(creatorProfile.email, project.title, project.current_points)
+          }
+        }
+      }
 
       results.push({
         id: project.id,
@@ -82,7 +100,7 @@ export async function GET(request: Request) {
         // 残高を加算
         const { data: profile } = await supabase
           .from('profiles')
-          .select('point_balance')
+          .select('point_balance, email')
           .eq('id', donation.user_id)
           .single()
 
@@ -96,6 +114,11 @@ export async function GET(request: Request) {
         if (refundError) {
           console.error(`Cron: 返還失敗 user=${donation.user_id}`, refundError)
           continue
+        }
+
+        // サポーターへ返還通知（best-effort）
+        if (profile.email) {
+          await sendRefundEmail(profile.email, project.title, donation.points)
         }
 
         // point_transactions に返還記録

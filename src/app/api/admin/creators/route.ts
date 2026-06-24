@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
+import { sendCreatorApprovedEmail, sendCreatorRejectedEmail } from '@/lib/email'
 
 // 管理者がクリエイター申請を承認・却下する API
 // 認証は cookie ベースの SSR クライアントで行い、
@@ -55,12 +56,27 @@ export async function POST(request: Request) {
     .from('creators')
     .update({ status: nextStatus })
     .eq('id', creator_id)
-    .select('id, status')
+    .select('id, status, name, user_id')
     .single()
 
   if (error || !updated) {
     console.error('AdminCreators: update failed', error)
     return NextResponse.json({ error: '更新に失敗しました' }, { status: 500 })
+  }
+
+  // 申請者のメールアドレスを取得して結果を通知（best-effort）
+  const { data: applicant } = await admin
+    .from('profiles')
+    .select('email')
+    .eq('id', updated.user_id)
+    .single()
+
+  if (applicant?.email) {
+    if (nextStatus === 'approved') {
+      await sendCreatorApprovedEmail(applicant.email, updated.name)
+    } else {
+      await sendCreatorRejectedEmail(applicant.email, updated.name)
+    }
   }
 
   return NextResponse.json({ success: true, status: updated.status })

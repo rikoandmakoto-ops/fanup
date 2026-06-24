@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { daysLeft } from '@/lib/date'
+import FollowButton from '@/components/FollowButton'
 
 /* ダミーデータ（DB未接続時のフォールバック） */
 const fallbackCreators = [
@@ -96,6 +97,26 @@ export default async function CreatorProfilePage({ params }: { params: Promise<{
     }
   }
 
+  /* ログインユーザーとフォロー状態を取得（follows テーブル未作成でも安全に 0/false） */
+  const { data: { user } } = await supabase.auth.getUser()
+  const targetCreatorId = dbCreator?.id ?? id
+
+  const { count: followerCount } = await supabase
+    .from('follows')
+    .select('follower_id', { count: 'exact', head: true })
+    .eq('creator_id', targetCreatorId)
+
+  let isFollowing = false
+  if (user) {
+    const { data: followRow } = await supabase
+      .from('follows')
+      .select('creator_id')
+      .eq('creator_id', targetCreatorId)
+      .eq('follower_id', user.id)
+      .maybeSingle()
+    isFollowing = Boolean(followRow)
+  }
+
   /* 表示用データ組み立て */
   const creator = dbCreator
     ? {
@@ -105,7 +126,7 @@ export default async function CreatorProfilePage({ params }: { params: Promise<{
         status: dbCreator.status,
         avatar: dbCreator.name[0],
         coverColor: 'linear-gradient(135deg, #a78bfa 0%, #7c3aed 50%, #6d28d9 100%)',
-        stats: { followers: totalSupporters, projects: projects.length, achieved: projects.filter(p => p.pct >= 100).length },
+        stats: { followers: followerCount ?? totalSupporters, projects: projects.length, achieved: projects.filter(p => p.pct >= 100).length },
         projects,
       }
     : {
@@ -113,6 +134,8 @@ export default async function CreatorProfilePage({ params }: { params: Promise<{
       }
 
   const displayProjects = dbCreator ? projects : (fallback?.projects ?? [])
+  // Tip（投げ銭）導線：募集中プロジェクトがあればそこへ、無ければ先頭プロジェクト
+  const tipProjectId = displayProjects[0]?.id
 
   return (
     <>
@@ -226,38 +249,48 @@ export default async function CreatorProfilePage({ params }: { params: Promise<{
               {creator.bio}
             </p>
 
-            {/* アクションボタン行（Follow / Tip / Offer / Message 風） */}
+            {/* アクションボタン行（Follow / Tip / Offer / Message） */}
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(4, 1fr)',
               gap: '10px',
               marginTop: '20px',
             }}>
-              <button className="btn-outline">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M8 1v14M1 8h14"/>
-                </svg>
-                フォロー
-              </button>
-              <button className="btn-outline">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <circle cx="8" cy="8" r="6"/>
-                  <path d="M8 5v3l2 2"/>
-                </svg>
-                チップ
-              </button>
-              <button className="btn-outline">
+              {/* フォロー（実機能） */}
+              <FollowButton creatorId={targetCreatorId} isLoggedIn={Boolean(user)} initialFollowing={isFollowing} />
+
+              {/* チップ＝既存の応援フローへ。募集中プロジェクトがあればその詳細へ誘導 */}
+              {tipProjectId ? (
+                <Link href={`/projects/${tipProjectId}`} className="btn-outline">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <circle cx="8" cy="8" r="6"/>
+                    <path d="M8 5v3l2 2"/>
+                  </svg>
+                  チップ
+                </Link>
+              ) : (
+                <button className="btn-outline" disabled style={{ opacity: 0.5, cursor: 'not-allowed' }}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <circle cx="8" cy="8" r="6"/>
+                    <path d="M8 5v3l2 2"/>
+                  </svg>
+                  チップ
+                </button>
+              )}
+
+              {/* オファー / メッセージは未提供のため準備中表示 */}
+              <button className="btn-outline" disabled style={{ opacity: 0.5, cursor: 'not-allowed' }}>
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M14 10l-3-3 3-3M2 6l3 3-3 3"/>
                 </svg>
-                オファー
+                準備中
               </button>
-              <button className="btn-outline">
+              <button className="btn-outline" disabled style={{ opacity: 0.5, cursor: 'not-allowed' }}>
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <rect x="2" y="3" width="12" height="10" rx="2"/>
                   <path d="M2 5l6 4 6-4"/>
                 </svg>
-                メッセージ
+                準備中
               </button>
             </div>
 
