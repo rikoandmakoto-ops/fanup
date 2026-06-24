@@ -2,6 +2,7 @@ import Header from '@/components/layout/Header'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { daysLeft } from '@/lib/date'
 
 export default async function CreatorDashboard() {
   const supabase = await createClient()
@@ -136,7 +137,7 @@ export default async function CreatorDashboard() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {projects.map(p => {
               const pct = p.goal_points > 0 ? Math.round((p.current_points / p.goal_points) * 100) : 0
-              const days = p.deadline ? Math.max(0, Math.ceil((new Date(p.deadline).getTime() - Date.now()) / 86400000)) : 0
+              const days = daysLeft(p.deadline)
               const supporters = supporterMap[p.id]?.size ?? 0
               const statusLabel = p.status === 'active' ? '募集中' : p.status === 'succeeded' ? '達成' : p.status === 'failed' ? '未達成' : p.status
               const statusColor = p.status === 'active' ? '#059669' : p.status === 'succeeded' ? '#7C3AED' : '#737373'

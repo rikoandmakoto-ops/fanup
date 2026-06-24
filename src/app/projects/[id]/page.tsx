@@ -3,6 +3,7 @@ import DonateCard from '@/components/DonateCard'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { daysLeft } from '@/lib/date'
 
 const fallbackProjects = [
   { id: 1, emoji: '🎵', bg: 'linear-gradient(135deg,#EDE9FE,#DDD6FE)', badge: '音楽', creator: 'あかり', creatorId: '1', cat: '音楽・弾き語り', title: '弾き語りチャンネルを開設して音楽の世界を広げたい', pct: 82, raised: 82000, goal: 100000, days: 8, supporters: 134, desc: 'ギターの弾き語りを5年続けてきました。自宅録音から配信へとステップアップするため、専用のファンクラブチャンネルを開設したいと考えています。\n\n月に最低4本の演奏動画と、月1回のライブ配信を予定しています。チャンネル開設後は限定コンテンツも随時公開していきます。皆さんの応援が大きな力になります！' },
@@ -47,7 +48,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         pct: dbProject.goal_points > 0 ? Math.round((dbProject.current_points / dbProject.goal_points) * 100) : 0,
         raised: dbProject.current_points,
         goal: dbProject.goal_points,
-        days: dbProject.deadline ? Math.max(0, Math.ceil((new Date(dbProject.deadline).getTime() - Date.now()) / 86400000)) : 0,
+        days: daysLeft(dbProject.deadline),
         supporters: dbSupporters,
         desc: dbProject.description ?? '',
       }

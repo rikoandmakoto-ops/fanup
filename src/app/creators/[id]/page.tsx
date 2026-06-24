@@ -2,6 +2,7 @@ import Header from '@/components/layout/Header'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { daysLeft } from '@/lib/date'
 
 /* ダミーデータ（DB未接続時のフォールバック） */
 const fallbackCreators = [
@@ -79,7 +80,7 @@ export default async function CreatorProfilePage({ params }: { params: Promise<{
       pct: p.goal_points > 0 ? Math.round((p.current_points / p.goal_points) * 100) : 0,
       raised: p.current_points,
       goal: p.goal_points,
-      days: p.deadline ? Math.max(0, Math.ceil((new Date(p.deadline).getTime() - Date.now()) / 86400000)) : 0,
+      days: daysLeft(p.deadline),
       emoji: '📌',
       bg: 'linear-gradient(135deg,#EDE9FE,#DDD6FE)',
     }))

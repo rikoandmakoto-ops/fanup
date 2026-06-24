@@ -1,6 +1,7 @@
 import Header from '@/components/layout/Header'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import CreatorReviewActions from '@/components/admin/CreatorReviewActions'
 
 export default async function AdminPage() {
   const supabase = await createClient()
@@ -74,12 +75,13 @@ export default async function AdminPage() {
             <Empty text="審査待ちのクリエイターはいません。" />
           ) : (
             <Table
-              headers={['名前', 'カテゴリ', '申請日', 'ステータス']}
+              headers={['名前', 'カテゴリ', '申請日', 'ステータス', '操作']}
               rows={creators.filter(c => c.status === 'pending').map(c => [
                 c.name,
                 c.category ?? '—',
                 formatDate(c.created_at),
                 <StatusBadge key={c.id} status={c.status} />,
+                <CreatorReviewActions key={`act-${c.id}`} creatorId={c.id} />,
               ])}
             />
           )}

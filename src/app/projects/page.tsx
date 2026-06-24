@@ -1,6 +1,7 @@
 import Header from '@/components/layout/Header'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { daysLeft } from '@/lib/date'
 
 const fallbackProjects = [
   { id: 1, emoji: '🎵', bg: 'linear-gradient(135deg,#EDE9FE,#DDD6FE)', badge: '音楽', creator: 'あかり', title: '弾き語りチャンネルを開設して音楽の世界を広げたい', pct: 82, raised: 82000, goal: 100000, days: 8 },
@@ -22,7 +23,7 @@ export default async function ProjectsPage() {
         const creatorRaw = p.creators as unknown as { name: string; category: string } | { name: string; category: string }[] | null
         const creator = Array.isArray(creatorRaw) ? creatorRaw[0] : creatorRaw
         const pct = p.goal_points > 0 ? Math.round((p.current_points / p.goal_points) * 100) : 0
-        const days = p.deadline ? Math.max(0, Math.ceil((new Date(p.deadline).getTime() - Date.now()) / 86400000)) : 0
+        const days = daysLeft(p.deadline)
         return {
           id: p.id,
           emoji: '📌',
