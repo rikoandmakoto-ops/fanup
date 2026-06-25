@@ -97,7 +97,7 @@ export default async function CreatorDashboard() {
         </div>
 
         {/* サマリーカード */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '32px' }}>
+        <div className="dash-summary" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '32px' }}>
           {[
             { label: 'プロジェクト数', value: `${(projects ?? []).length}件` },
             { label: '合計獲得ポイント', value: `${totalRaised.toLocaleString()} pt` },

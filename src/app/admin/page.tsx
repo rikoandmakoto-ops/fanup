@@ -49,7 +49,7 @@ export default async function AdminPage() {
         <div style={{ fontSize: '22px', fontWeight: '700', marginBottom: '28px' }}>管理画面</div>
 
         {/* サマリー */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '36px' }}>
+        <div className="admin-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '36px' }}>
           {[
             { label: 'ユーザー', value: users.length },
             { label: 'クリエイター', value: creators.length },

@@ -151,16 +151,16 @@ export default async function CreatorProfilePage({ params }: { params: Promise<{
         }}>
 
           {/* カバー画像（フル幅） */}
-          <div style={{
+          <div className="creator-cover" style={{
             height: '220px',
             background: creator.coverColor,
           }} />
 
           {/* プロフィール情報セクション */}
-          <div style={{ padding: '0 28px 28px' }}>
+          <div className="creator-profile-body" style={{ padding: '0 28px 28px' }}>
 
             {/* === アバター + 名前 + Stats 1行レイアウト（FeetFinder準拠） === */}
-            <div style={{
+            <div className="creator-head" style={{
               display: 'flex',
               alignItems: 'flex-end',
               gap: '16px',
@@ -222,7 +222,7 @@ export default async function CreatorProfilePage({ params }: { params: Promise<{
               </div>
 
               {/* Stats（右端） */}
-              <div style={{ display: 'flex', gap: '24px', textAlign: 'center', paddingBottom: '4px' }}>
+              <div className="creator-head-stats" style={{ display: 'flex', gap: '24px', textAlign: 'center', paddingBottom: '4px' }}>
                 <div>
                   <div style={{ fontSize: '20px', fontWeight: '600' }}>{creator.stats.followers}</div>
                   <div style={{ fontSize: '11px', color: '#737373', letterSpacing: '0.03em' }}>Followers</div>
@@ -250,7 +250,7 @@ export default async function CreatorProfilePage({ params }: { params: Promise<{
             </p>
 
             {/* アクションボタン行（Follow / Tip / Offer / Message） */}
-            <div style={{
+            <div className="creator-actions" style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(4, 1fr)',
               gap: '10px',

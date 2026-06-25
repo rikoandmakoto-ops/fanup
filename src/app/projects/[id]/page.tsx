@@ -124,7 +124,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         </Link>
 
         {/* 2カラムレイアウト */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '28px', alignItems: 'start' }}>
+        <div className="detail-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '28px', alignItems: 'start' }}>
           <div>
             <p style={{ fontSize: '14px', color: '#525252', lineHeight: '1.9', whiteSpace: 'pre-line', marginBottom: '24px' }}>{p.desc}</p>
             <hr style={{ border: 'none', borderTop: '1px solid #e5e5e5', marginBottom: '20px' }} />

@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
@@ -10,6 +10,7 @@ export default function Header() {
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
   const [balance, setBalance] = useState(0)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
     const supabase = createClient()
@@ -41,6 +42,8 @@ export default function Header() {
     router.push('/')
     router.refresh()
   }
+
+  const closeMenu = () => setMenuOpen(false)
 
   return (
     <nav style={{
@@ -77,8 +80,8 @@ export default function Header() {
           FanUp
         </Link>
 
-        {/* ナビリンク */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+        {/* ナビリンク（デスクトップ） */}
+        <div className="nav-desktop" style={{ alignItems: 'center', gap: '24px' }}>
           <Link href="/projects" style={{
             fontSize: '14px',
             fontWeight: '500',
@@ -97,8 +100,8 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* 右側ボタン */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        {/* 右側ボタン（デスクトップ） */}
+        <div className="nav-desktop" style={{ alignItems: 'center', gap: '10px' }}>
           {user ? (
             <>
               {/* 残高バッジ */}
@@ -190,7 +193,84 @@ export default function Header() {
             </>
           )}
         </div>
+
+        {/* ハンバーガー（モバイル） */}
+        <button
+          className="nav-hamburger"
+          aria-label="メニュー"
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen(o => !o)}
+        >
+          {menuOpen ? (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          ) : (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M4 7h16M4 12h16M4 17h16" />
+            </svg>
+          )}
+        </button>
+      </div>
+
+      {/* モバイルメニューパネル */}
+      <div
+        className={`nav-mobile-panel ${menuOpen ? 'open' : ''}`}
+        style={{
+          flexDirection: 'column',
+          gap: '8px',
+          padding: '12px 20px 20px',
+          borderTop: '1px solid #e5e5e5',
+        }}
+      >
+        {user && (
+          <div style={{
+            fontSize: '14px',
+            color: '#525252',
+            background: '#f5f5f5',
+            border: '1px solid #e5e5e5',
+            padding: '12px 16px',
+            borderRadius: '12px',
+            textAlign: 'center',
+          }}>
+            残高 <strong style={{ color: '#7C3AED' }}>{balance.toLocaleString()}</strong> pt
+          </div>
+        )}
+
+        <Link href="/projects" onClick={closeMenu} style={mobileLinkStyle}>クリエイター</Link>
+        <Link href="/projects" onClick={closeMenu} style={mobileLinkStyle}>プロジェクト</Link>
+
+        {user ? (
+          <>
+            <Link href="/buy-points" onClick={closeMenu} style={{ ...mobileLinkStyle, background: '#7C3AED', color: '#fff', fontWeight: 600 }}>ポイント購入</Link>
+            <Link href="/creator" onClick={closeMenu} style={mobileLinkStyle}>ダッシュボード</Link>
+            <Link href="/mypage" onClick={closeMenu} style={mobileLinkStyle}>マイページ</Link>
+            <button onClick={() => { closeMenu(); handleLogout() }} style={{ ...mobileLinkStyle, background: 'none', border: '1px solid #e5e5e5', color: '#737373', cursor: 'pointer' }}>
+              ログアウト
+            </button>
+          </>
+        ) : (
+          <>
+            <Link href="/login" onClick={closeMenu} style={mobileLinkStyle}>ログイン</Link>
+            <Link href="/signup" onClick={closeMenu} style={{ ...mobileLinkStyle, background: '#7C3AED', color: '#fff', fontWeight: 600 }}>無料登録</Link>
+          </>
+        )}
       </div>
     </nav>
   )
+}
+
+const mobileLinkStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  minHeight: '46px',
+  padding: '12px 16px',
+  borderRadius: '12px',
+  background: '#f5f5f5',
+  border: '1px solid #e5e5e5',
+  color: '#1a1a1a',
+  fontSize: '15px',
+  fontWeight: 500,
+  textDecoration: 'none',
 }

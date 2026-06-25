@@ -76,7 +76,7 @@ export default function BuyPointsPage() {
         <div style={{ fontSize: '12px', fontWeight: '500', color: 'var(--muted)', marginBottom: '8px' }}>
           プランを選択
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '14px' }}>
+        <div className="buy-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '14px' }}>
           {plans.map(p => (
             <div
               key={p.pt}

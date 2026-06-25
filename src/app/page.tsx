@@ -187,7 +187,7 @@ export default async function Home() {
           </div>
 
           {/* スタッツ */}
-          <div style={{
+          <div className="hero-stats" style={{
             display: 'flex',
             justifyContent: 'center',
             marginTop: '52px',
@@ -195,7 +195,7 @@ export default async function Home() {
             paddingTop: '32px',
           }}>
             {stats.map((s, i) => (
-              <div key={i} style={{
+              <div key={i} className="hero-stat" style={{
                 flex: 1,
                 textAlign: 'center',
                 padding: '0 24px',
