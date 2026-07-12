@@ -54,7 +54,12 @@ export default function LoginPage() {
             />
           </div>
           <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: '500', color: 'var(--muted)', marginBottom: '5px' }}>パスワード</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '5px' }}>
+              <label style={{ fontSize: '12px', fontWeight: '500', color: 'var(--muted)' }}>パスワード</label>
+              <Link href="/reset-password" style={{ fontSize: '12px', color: 'var(--pink)', textDecoration: 'none' }}>
+                パスワードを忘れた方
+              </Link>
+            </div>
             <input
               type="password"
               value={password}
