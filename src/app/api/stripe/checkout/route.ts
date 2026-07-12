@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe/server'
 import { createClient } from '@/lib/supabase/server'
+import { getAppUrl } from '@/lib/url'
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -24,6 +25,7 @@ export async function POST(request: Request) {
   }
 
   const amount = points // 1pt = ¥1
+  const appUrl = getAppUrl()
 
   try {
     const session = await stripe.checkout.sessions.create({
@@ -46,8 +48,8 @@ export async function POST(request: Request) {
         user_id: user.id,
         points: String(points),
       },
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/buy-points/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/buy-points/cancel`,
+      success_url: `${appUrl}/buy-points/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${appUrl}/buy-points/cancel`,
     })
 
     return NextResponse.json({ url: session.url })

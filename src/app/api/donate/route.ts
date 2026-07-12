@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { sendDonationReceivedEmail } from '@/lib/email'
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -33,10 +35,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'ポイントが不足しています' }, { status: 400 })
   }
 
-  // プロジェクトの存在・募集中を確認
+  // プロジェクトの存在・募集中を確認（クリエイター情報も取得し、後で通知に使う）
   const { data: project } = await supabase
     .from('projects')
-    .select('id, status')
+    .select('id, status, title, creators(user_id, name)')
     .eq('id', project_id)
     .single()
 
@@ -114,6 +116,33 @@ export async function POST(request: Request) {
         .update({ current_points: currentProject.current_points + points })
         .eq('id', project_id)
     }
+  }
+
+  // クリエイターへ支援通知メール（best-effort: 失敗してもレスポンスは返す）
+  try {
+    const creatorRaw = project.creators as unknown as { user_id: string; name: string } | { user_id: string; name: string }[] | null
+    const creator = Array.isArray(creatorRaw) ? creatorRaw[0] : creatorRaw
+    if (creator?.user_id) {
+      // profiles は self-read RLS のため、他ユーザー（クリエイター/支援者名）は service-role で読む
+      const admin = createAdminClient()
+      const { data: profs } = await admin
+        .from('profiles')
+        .select('id, email, display_name')
+        .in('id', [creator.user_id, user.id])
+      const creatorProfile = profs?.find(p => p.id === creator.user_id)
+      const supporterProfile = profs?.find(p => p.id === user.id)
+      const supporterName = supporterProfile?.display_name?.trim() || supporterProfile?.email?.split('@')[0] || 'サポーター'
+      if (creatorProfile?.email) {
+        await sendDonationReceivedEmail(creatorProfile.email, {
+          creatorName: creator.name,
+          supporterName,
+          projectTitle: project.title,
+          points,
+        })
+      }
+    }
+  } catch (err) {
+    console.error('Donate: 支援通知メールの送信に失敗', err)
   }
 
   // 最新の残高を返す

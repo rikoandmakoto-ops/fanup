@@ -1,4 +1,5 @@
 import { Resend } from 'resend'
+import { getAppUrl } from '@/lib/url'
 
 // Resend を使ったトランザクションメール送信ヘルパー
 // RESEND_API_KEY が未設定・不正でもアプリを止めないよう、すべて best-effort で動作する
@@ -58,7 +59,7 @@ export async function sendEmail({ to, subject, html }: SendArgs): Promise<boolea
   }
 }
 
-const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://fanup-rouge.vercel.app'
+const appUrl = getAppUrl()
 
 // 共通レイアウト（FanUp パープルテーマに合わせたシンプルな HTML）
 function layout(title: string, body: string, cta?: { label: string; href: string }): string {
@@ -96,6 +97,23 @@ export async function sendCreatorRejectedEmail(to: string, name: string): Promis
       `${name} さん、審査結果のお知らせ`,
       '今回はクリエイター申請を承認することができませんでした。内容を見直して、改めてご申請いただけます。ご不明な点はサポートまでお問い合わせください。',
       { label: 'もう一度申請する', href: `${appUrl}/creator/apply` }
+    ),
+  })
+}
+
+// 支援受領通知（クリエイター向け）— 金額・支援者名・プロジェクト名を含む
+export async function sendDonationReceivedEmail(
+  to: string,
+  args: { creatorName: string; supporterName: string; projectTitle: string; points: number }
+): Promise<boolean> {
+  const { creatorName, supporterName, projectTitle, points } = args
+  return sendEmail({
+    to,
+    subject: '【FanUp】新しい応援が届きました 🎉',
+    html: layout(
+      `${creatorName} さんに応援が届きました`,
+      `<strong>${supporterName}</strong> さんが、あなたのプロジェクト「${projectTitle}」を <strong>${points.toLocaleString()} pt</strong> で応援しました！<br /><br />ダッシュボードから支援者の一覧と進捗を確認できます。`,
+      { label: 'ダッシュボードを見る', href: `${appUrl}/creator` }
     ),
   })
 }
