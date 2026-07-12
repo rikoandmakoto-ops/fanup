@@ -144,35 +144,40 @@ export default async function CreatorDashboard() {
               const statusBg = p.status === 'active' ? '#ECFDF5' : p.status === 'succeeded' ? '#EDE9FE' : '#f5f5f5'
 
               return (
-                <div key={p.id} className="card" style={{ padding: '20px 22px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                    <div style={{ fontSize: '15px', fontWeight: '700' }}>{p.title}</div>
-                    <span style={{
-                      fontSize: '11px',
-                      fontWeight: '600',
-                      color: statusColor,
-                      background: statusBg,
-                      padding: '3px 12px',
-                      borderRadius: '99px',
-                    }}>
-                      {statusLabel}
-                    </span>
+                <Link key={p.id} href={`/creator/projects/${p.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <div className="card" style={{ padding: '20px 22px', cursor: 'pointer' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                      <div style={{ fontSize: '15px', fontWeight: '700' }}>{p.title}</div>
+                      <span style={{
+                        fontSize: '11px',
+                        fontWeight: '600',
+                        color: statusColor,
+                        background: statusBg,
+                        padding: '3px 12px',
+                        borderRadius: '99px',
+                      }}>
+                        {statusLabel}
+                      </span>
+                    </div>
+                    <div style={{ height: '6px', background: '#f5f5f5', borderRadius: '99px', overflow: 'hidden', marginBottom: '10px' }}>
+                      <div style={{
+                        height: '100%',
+                        width: `${Math.min(pct, 100)}%`,
+                        background: 'linear-gradient(90deg, #7C3AED, #a78bfa)',
+                        borderRadius: '99px',
+                      }} />
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                      <div style={{ display: 'flex', gap: '18px', fontSize: '12px', color: '#737373', flexWrap: 'wrap' }}>
+                        <span><strong style={{ color: '#7C3AED' }}>{pct}%</strong> 達成</span>
+                        <span>{p.current_points.toLocaleString()} / {p.goal_points.toLocaleString()} pt</span>
+                        <span>{supporters}名 サポーター</span>
+                        {p.status === 'active' && <span>残り{days}日</span>}
+                      </div>
+                      <span style={{ fontSize: '12px', color: '#7C3AED', fontWeight: '600' }}>管理 →</span>
+                    </div>
                   </div>
-                  <div style={{ height: '6px', background: '#f5f5f5', borderRadius: '99px', overflow: 'hidden', marginBottom: '10px' }}>
-                    <div style={{
-                      height: '100%',
-                      width: `${Math.min(pct, 100)}%`,
-                      background: 'linear-gradient(90deg, #7C3AED, #a78bfa)',
-                      borderRadius: '99px',
-                    }} />
-                  </div>
-                  <div style={{ display: 'flex', gap: '18px', fontSize: '12px', color: '#737373' }}>
-                    <span><strong style={{ color: '#7C3AED' }}>{pct}%</strong> 達成</span>
-                    <span>{p.current_points.toLocaleString()} / {p.goal_points.toLocaleString()} pt</span>
-                    <span>{supporters}名 サポーター</span>
-                    {p.status === 'active' && <span>残り{days}日</span>}
-                  </div>
-                </div>
+                </Link>
               )
             })}
           </div>
