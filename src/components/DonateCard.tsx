@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 type Props = {
@@ -18,6 +19,7 @@ type Props = {
 const presets = [500, 1000, 3000, 5000]
 
 export default function DonateCard({ projectId, user, balance: initialBalance, raised, goal, pct, supporters, days }: Props) {
+  const router = useRouter()
   const [amount, setAmount] = useState('')
   const [balance, setBalance] = useState(initialBalance)
   const [loading, setLoading] = useState(false)
@@ -45,6 +47,8 @@ export default function DonateCard({ projectId, user, balance: initialBalance, r
         setAmount('')
         setDone(true)
         setTimeout(() => setDone(false), 3000)
+        // 進捗バー・獲得ポイント・サポーター数（サーバー側で算出）を最新化
+        router.refresh()
       } else {
         setError(data.error || 'エラーが発生しました')
       }

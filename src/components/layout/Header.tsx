@@ -82,7 +82,7 @@ export default function Header() {
 
         {/* ナビリンク（デスクトップ） */}
         <div className="nav-desktop" style={{ alignItems: 'center', gap: '24px' }}>
-          <Link href="/projects" style={{
+          <Link href="/creators" style={{
             fontSize: '14px',
             fontWeight: '500',
             color: '#525252',
@@ -237,7 +237,7 @@ export default function Header() {
           </div>
         )}
 
-        <Link href="/projects" onClick={closeMenu} style={mobileLinkStyle}>クリエイター</Link>
+        <Link href="/creators" onClick={closeMenu} style={mobileLinkStyle}>クリエイター</Link>
         <Link href="/projects" onClick={closeMenu} style={mobileLinkStyle}>プロジェクト</Link>
 
         {user ? (

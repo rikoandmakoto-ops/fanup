@@ -1,5 +1,6 @@
 import Header from '@/components/layout/Header'
 import Link from 'next/link'
+import ProjectThumbnail from '@/components/ProjectThumbnail'
 import { createClient } from '@/lib/supabase/server'
 import { daysLeft } from '@/lib/date'
 
@@ -9,7 +10,8 @@ const fallbackProjects = [
   { id: 3, emoji: '💄', bg: 'linear-gradient(135deg,#FFFBEB,#FEF3C7)', badge: 'コスメ', creator: 'みき', title: 'コスメ・ファッションの本音レビューを発信したい', pct: 60, raised: 60000, goal: 100000, days: 14 },
 ]
 
-export default async function ProjectsPage() {
+export default async function ProjectsPage({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
+  const { category: selectedCategory } = await searchParams
   const supabase = await createClient()
 
   const { data: dbProjects } = await supabase
@@ -39,6 +41,27 @@ export default async function ProjectsPage() {
       })
     : fallbackProjects
 
+  // 利用可能なカテゴリ（プロジェクトに紐づくものだけ・重複排除）
+  const categories = Array.from(
+    new Set(projects.map(p => p.badge).filter((b): b is string => Boolean(b)))
+  )
+
+  // 選択中カテゴリで絞り込み（未指定または該当なしなら全件）
+  const isFiltering = Boolean(selectedCategory) && categories.includes(selectedCategory!)
+  const visibleProjects = isFiltering
+    ? projects.filter(p => p.badge === selectedCategory)
+    : projects
+
+  const chipBase = {
+    fontSize: '13px',
+    fontWeight: 600,
+    padding: '8px 16px',
+    borderRadius: '99px',
+    textDecoration: 'none',
+    whiteSpace: 'nowrap' as const,
+    border: '1px solid',
+  }
+
   return (
     <>
       <Header />
@@ -47,50 +70,89 @@ export default async function ProjectsPage() {
           <div style={{ fontSize: '11px', letterSpacing: '.1em', textTransform: 'uppercase', color: '#737373', marginBottom: '4px' }}>PROJECTS</div>
           <div style={{ fontSize: '24px', fontWeight: '700' }}>プロジェクト一覧</div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: '18px', paddingBottom: '60px' }}>
-          {projects.map(p => (
-            <Link key={p.id} href={`/projects/${p.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-              <div className="card" style={{ cursor: 'pointer' }}>
-                <div style={{ height: '160px', background: p.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '52px' }}>
-                  {p.emoji}
-                </div>
-                <div style={{ padding: '16px 18px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                    <span style={{ fontSize: '12px', color: '#737373' }}>{p.creator}</span>
-                    <span style={{
-                      fontSize: '11px',
-                      fontWeight: '600',
-                      padding: '3px 10px',
-                      borderRadius: '99px',
-                      background: '#EDE9FE',
-                      color: '#7C3AED',
-                      border: '1px solid #C4B5FD',
-                    }}>
-                      {p.badge}
-                    </span>
-                  </div>
-                  <div style={{ fontSize: '14px', fontWeight: '700', lineHeight: '1.5', marginBottom: '14px' }}>{p.title}</div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#737373', marginBottom: '7px' }}>
-                    <span style={{ fontWeight: '700', color: '#7C3AED' }}>{p.pct}%</span>
-                    <span>残り {p.days}日</span>
-                  </div>
-                  <div style={{ height: '6px', background: '#f5f5f5', borderRadius: '99px', overflow: 'hidden' }}>
-                    <div style={{
-                      height: '100%',
-                      width: `${p.pct}%`,
-                      background: 'linear-gradient(90deg, #7C3AED, #a78bfa)',
-                      borderRadius: '99px',
-                    }} />
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#737373', marginTop: '7px' }}>
-                    <span>{p.raised.toLocaleString()} pt</span>
-                    <span>目標 {p.goal.toLocaleString()} pt</span>
-                  </div>
-                </div>
-              </div>
+
+        {/* カテゴリ絞り込み */}
+        {categories.length > 0 && (
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', paddingBottom: '24px' }}>
+            <Link
+              href="/projects"
+              style={{
+                ...chipBase,
+                background: !isFiltering ? '#7C3AED' : '#fff',
+                color: !isFiltering ? '#fff' : '#525252',
+                borderColor: !isFiltering ? '#7C3AED' : '#e5e5e5',
+              }}
+            >
+              すべて
             </Link>
-          ))}
-        </div>
+            {categories.map(cat => {
+              const active = selectedCategory === cat
+              return (
+                <Link
+                  key={cat}
+                  href={`/projects?category=${encodeURIComponent(cat)}`}
+                  style={{
+                    ...chipBase,
+                    background: active ? '#7C3AED' : '#fff',
+                    color: active ? '#fff' : '#525252',
+                    borderColor: active ? '#7C3AED' : '#e5e5e5',
+                  }}
+                >
+                  {cat}
+                </Link>
+              )
+            })}
+          </div>
+        )}
+
+        {visibleProjects.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#737373', fontSize: '14px' }}>
+            このカテゴリのプロジェクトはまだありません
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: '18px', paddingBottom: '60px' }}>
+            {visibleProjects.map(p => (
+              <Link key={p.id} href={`/projects/${p.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div className="card" style={{ cursor: 'pointer' }}>
+                  <ProjectThumbnail title={p.title} category={p.badge} seed={p.id} variant="card" />
+                  <div style={{ padding: '16px 18px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                      <span style={{ fontSize: '12px', color: '#737373' }}>{p.creator}</span>
+                      <span style={{
+                        fontSize: '11px',
+                        fontWeight: '600',
+                        padding: '3px 10px',
+                        borderRadius: '99px',
+                        background: '#EDE9FE',
+                        color: '#7C3AED',
+                        border: '1px solid #C4B5FD',
+                      }}>
+                        {p.badge}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: '14px', fontWeight: '700', lineHeight: '1.5', marginBottom: '14px' }}>{p.title}</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#737373', marginBottom: '7px' }}>
+                      <span style={{ fontWeight: '700', color: '#7C3AED' }}>{p.pct}%</span>
+                      <span>残り {p.days}日</span>
+                    </div>
+                    <div style={{ height: '6px', background: '#f5f5f5', borderRadius: '99px', overflow: 'hidden' }}>
+                      <div style={{
+                        height: '100%',
+                        width: `${p.pct}%`,
+                        background: 'linear-gradient(90deg, #7C3AED, #a78bfa)',
+                        borderRadius: '99px',
+                      }} />
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#737373', marginTop: '7px' }}>
+                      <span>{p.raised.toLocaleString()} pt</span>
+                      <span>目標 {p.goal.toLocaleString()} pt</span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </main>
     </>
   )

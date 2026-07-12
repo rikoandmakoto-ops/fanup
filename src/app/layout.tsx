@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter, M_PLUS_Rounded_1c } from 'next/font/google'
 import './globals.css'
+import Footer from '@/components/layout/Footer'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -31,8 +32,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja" className={`${inter.variable} ${mPlusRounded.variable}`}>
-      <body>
+      <body style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         {children}
+        <Footer />
       </body>
     </html>
   )

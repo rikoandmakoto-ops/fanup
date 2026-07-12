@@ -1,9 +1,11 @@
 import Header from '@/components/layout/Header'
 import DonateCard from '@/components/DonateCard'
+import ProjectThumbnail from '@/components/ProjectThumbnail'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { daysLeft } from '@/lib/date'
+import { getProjectVideoUrl } from '@/lib/video'
 
 const fallbackProjects = [
   { id: 1, emoji: '🎵', bg: 'linear-gradient(135deg,#EDE9FE,#DDD6FE)', badge: '音楽', creator: 'あかり', creatorId: '1', cat: '音楽・弾き語り', title: '弾き語りチャンネルを開設して音楽の世界を広げたい', pct: 82, raised: 82000, goal: 100000, days: 8, supporters: 134, desc: 'ギターの弾き語りを5年続けてきました。自宅録音から配信へとステップアップするため、専用のファンクラブチャンネルを開設したいと考えています。\n\n月に最低4本の演奏動画と、月1回のライブ配信を予定しています。チャンネル開設後は限定コンテンツも随時公開していきます。皆さんの応援が大きな力になります！' },
@@ -56,6 +58,9 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
 
   if (!p) notFound()
 
+  /* 紹介動画（実プロジェクトのみ。フォールバックデータは対象外） */
+  const videoUrl = dbProject ? await getProjectVideoUrl(dbProject.id) : null
+
   const { data: { user } } = await supabase.auth.getUser()
   let balance = 0
   if (user) {
@@ -77,10 +82,19 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           </Link>
         </div>
 
-        {/* サムネイル */}
-        <div style={{ height: '220px', background: p.bg, borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '72px', marginBottom: '24px' }}>
-          {p.emoji}
-        </div>
+        {/* 紹介動画 または サムネイル */}
+        {videoUrl ? (
+          <video
+            src={videoUrl}
+            controls
+            playsInline
+            style={{ width: '100%', maxHeight: '460px', borderRadius: '16px', background: '#000', marginBottom: '24px', display: 'block' }}
+          />
+        ) : (
+          <div style={{ marginBottom: '24px' }}>
+            <ProjectThumbnail title={p.title} category={p.badge} seed={p.id} variant="detail" />
+          </div>
+        )}
 
         {/* バッジ */}
         <span style={{
