@@ -26,8 +26,6 @@ const admin = createClient(SUPABASE_URL, SERVICE_KEY, {
   auth: { persistSession: false, autoRefreshToken: false },
 })
 
-const DAY = 86400000
-
 // 既存メールなら再利用、無ければ作成して profile が出来るのを保証する
 async function ensureUser(email, displayName, password) {
   // まず作成を試みる
@@ -94,7 +92,7 @@ async function ensureProject(creatorId, p) {
     description: p.description,
     goal_points: p.goal_points,
     current_points: p.current_points,
-    deadline: new Date(Date.now() + p.days * DAY).toISOString(),
+    deadline: new Date(p.deadline).toISOString(),
     status: 'active',
     platform_fee_rate: 0.3,
   }
@@ -122,7 +120,7 @@ const creators = [
         'ギターの弾き語りを5年続けてきました。自宅録音から本格的な配信へとステップアップするため、専用のファンクラブチャンネルを開設したいと考えています。\n\n月に最低4本の演奏動画と、月1回のライブ配信を予定しています。チャンネル開設後は限定コンテンツも随時公開していきます。皆さんの応援が大きな力になります！',
       goal_points: 100000,
       current_points: 82000,
-      days: 18,
+      deadline: '2026-09-30T23:59:59+09:00',
     },
   },
   {
@@ -136,7 +134,7 @@ const creators = [
         'RPGからFPSまで幅広いジャンルのゲームを実況しています。毎日1本以上の動画投稿を目標に、視聴者と一緒に楽しめるチャンネルを作りたいと思っています。\n\n機材を強化して配信のクオリティを上げ、月に1度は視聴者参加型のオンライン大会も開催予定です。応援よろしくお願いします！',
       goal_points: 120000,
       current_points: 54000,
-      days: 25,
+      deadline: '2026-11-30T23:59:59+09:00',
     },
   },
   {
@@ -150,7 +148,7 @@ const creators = [
         'プチプラからデパコスまで、忖度なしのリアルなレビューをお届けしたいと思っています。ファッションも含め、日常をもっと楽しくするコンテンツを発信していきます。\n\n撮影機材と照明を揃えて、色味が正確に伝わる動画レビューを制作します。フォロワーさんからのリクエスト企画も実施予定です。',
       goal_points: 80000,
       current_points: 48000,
-      days: 12,
+      deadline: '2026-12-20T23:59:59+09:00',
     },
   },
 ]
