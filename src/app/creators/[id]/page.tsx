@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Header from '@/components/layout/Header'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -47,6 +48,36 @@ const fallbackCreators = [
     ],
   },
 ]
+
+// クリエイタープロフィールの動的メタデータ（SNS シェア・検索向け）
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  const supabase = await createClient()
+
+  const { data: dbCreator } = await supabase
+    .from('creators')
+    .select('name, category, bio')
+    .eq('id', id)
+    .maybeSingle()
+
+  const fb = fallbackCreators.find(c => c.id === id)
+  const name = dbCreator?.name ?? fb?.name
+  if (!name) return { title: 'クリエイターが見つかりません' }
+
+  const category = dbCreator?.category ?? fb?.category ?? ''
+  const bio = (dbCreator?.bio ?? fb?.bio ?? '').replace(/\s+/g, ' ').slice(0, 100)
+  const title = `${name}${category ? `（${category}）` : ''}`
+  const description = bio || `${name}さんを応援しよう。FanUpでプロジェクトを支援して、目標達成でチャンネル開設を後押し。`
+
+  const canonical = `/creators/${id}`
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: { type: 'profile', title, description, url: canonical },
+    twitter: { card: 'summary_large_image', title, description },
+  }
+}
 
 export default async function CreatorProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params

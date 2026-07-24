@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Header from '@/components/layout/Header'
 import DonateCard from '@/components/DonateCard'
 import ProjectThumbnail from '@/components/ProjectThumbnail'
@@ -12,6 +13,55 @@ const fallbackProjects = [
   { id: 2, emoji: '🎮', bg: 'linear-gradient(135deg,#ECFDF5,#D1FAE5)', badge: 'ゲーム', creator: 'けんた', creatorId: '2', cat: 'ゲーム実況・エンタメ', title: 'ゲーム実況チャンネルで毎日配信を届けたい', pct: 45, raised: 45000, goal: 100000, days: 21, supporters: 67, desc: 'RPGからFPSまで幅広いジャンルのゲームを実況しています。毎日1本以上の動画投稿を目標に、視聴者と一緒に楽しめるチャンネルを作りたいと思っています。' },
   { id: 3, emoji: '💄', bg: 'linear-gradient(135deg,#FFFBEB,#FEF3C7)', badge: 'コスメ', creator: 'みき', creatorId: '3', cat: 'ファッション・コスメ', title: 'コスメ・ファッションの本音レビューを発信したい', pct: 60, raised: 60000, goal: 100000, days: 14, supporters: 89, desc: 'プチプラからデパコスまで、忖度なしのリアルなレビューをお届けしたいと思っています。ファッションも含め、日常をもっと楽しくするコンテンツを発信していきます。' },
 ]
+
+// SNS シェア・検索向けの動的メタデータ。タイトル・説明・進捗を OGP に反映する。
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  const supabase = await createClient()
+
+  const { data: dbProject } = await supabase
+    .from('projects')
+    .select('title, description, goal_points, current_points, creators(name)')
+    .eq('id', id)
+    .single()
+
+  const fallback = fallbackProjects.find(x => x.id === Number(id))
+
+  const title = dbProject?.title ?? fallback?.title
+  if (!title) return { title: 'プロジェクトが見つかりません' }
+
+  const creatorRaw = dbProject?.creators as unknown as { name: string } | { name: string }[] | null
+  const creatorName = (Array.isArray(creatorRaw) ? creatorRaw[0] : creatorRaw)?.name ?? fallback?.creator ?? ''
+  const pct = dbProject
+    ? dbProject.goal_points > 0
+      ? Math.round((dbProject.current_points / dbProject.goal_points) * 100)
+      : 0
+    : fallback?.pct ?? 0
+
+  // 説明文：本文があれば冒頭を、無ければ進捗を要約に使う
+  const rawDesc = dbProject?.description ?? fallback?.desc ?? ''
+  const description = rawDesc
+    ? `${creatorName ? `${creatorName}さんのプロジェクト。` : ''}${rawDesc.replace(/\s+/g, ' ').slice(0, 100)}`
+    : `${creatorName ? `${creatorName}さんのプロジェクト（達成率${pct}%）。` : ''}目標達成でチャンネルが開設される、FanUpの応援プロジェクト。`
+
+  const canonical = `/projects/${id}`
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      type: 'article',
+      title,
+      description,
+      url: canonical,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
+  }
+}
 
 export default async function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
