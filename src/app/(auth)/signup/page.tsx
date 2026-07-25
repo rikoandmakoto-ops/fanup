@@ -10,10 +10,16 @@ export default function SignupPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
+  // 利用規約・プライバシーポリシーへの同意（登録の必須条件）
+  const [agreed, setAgreed] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleSignup = async () => {
+    if (!agreed) {
+      setError('利用規約とプライバシーポリシーへの同意が必要です')
+      return
+    }
     setLoading(true)
     setError('')
     const supabase = createClient()
@@ -68,7 +74,7 @@ export default function SignupPage() {
               style={{ width: '100%', background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: '8px', padding: '10px 14px', fontSize: '14px', color: 'var(--text)', outline: 'none' }}
             />
           </div>
-          <div style={{ marginBottom: '20px' }}>
+          <div style={{ marginBottom: '16px' }}>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: '500', color: 'var(--muted)', marginBottom: '5px' }}>パスワード（8文字以上）</label>
             <input
               type="password"
@@ -79,6 +85,26 @@ export default function SignupPage() {
             />
           </div>
 
+          {/* 利用規約・プライバシーポリシーへの同意 */}
+          <label
+            htmlFor="agree-terms"
+            style={{ display: 'flex', alignItems: 'flex-start', gap: '9px', marginBottom: '20px', cursor: 'pointer' }}
+          >
+            <input
+              id="agree-terms"
+              type="checkbox"
+              checked={agreed}
+              onChange={e => { setAgreed(e.target.checked); if (e.target.checked) setError('') }}
+              style={{ width: '16px', height: '16px', marginTop: '2px', accentColor: 'var(--pink)', flexShrink: 0, cursor: 'pointer' }}
+            />
+            <span style={{ fontSize: '12px', lineHeight: '1.7', color: 'var(--muted)' }}>
+              <Link href="/terms" target="_blank" style={{ color: 'var(--pink)' }}>利用規約</Link>
+              {' '}と{' '}
+              <Link href="/privacy" target="_blank" style={{ color: 'var(--pink)' }}>プライバシーポリシー</Link>
+              {' '}に同意します
+            </span>
+          </label>
+
           {error && (
             <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '10px 14px', fontSize: '13px', color: '#dc2626', marginBottom: '16px' }}>
               {error}
@@ -87,8 +113,8 @@ export default function SignupPage() {
 
           <button
             onClick={handleSignup}
-            disabled={loading}
-            style={{ width: '100%', background: 'var(--pink)', color: '#fff', border: 'none', borderRadius: '99px', padding: '12px', fontSize: '14px', fontWeight: '500', cursor: 'pointer', opacity: loading ? 0.7 : 1 }}
+            disabled={loading || !agreed}
+            style={{ width: '100%', background: 'var(--pink)', color: '#fff', border: 'none', borderRadius: '99px', padding: '12px', fontSize: '14px', fontWeight: '500', cursor: loading || !agreed ? 'not-allowed' : 'pointer', opacity: loading || !agreed ? 0.5 : 1 }}
           >
             {loading ? '処理中...' : '無料で登録する'}
           </button>
