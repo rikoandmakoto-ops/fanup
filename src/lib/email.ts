@@ -131,6 +131,45 @@ export async function sendProjectSucceededEmail(to: string, projectTitle: string
   })
 }
 
+// 送金完了通知（クリエイター向け）— 手数料の内訳を含む
+export async function sendPayoutSentEmail(
+  to: string,
+  args: { creatorName: string; projectTitle: string; grossAmount: number; feeAmount: number; netAmount: number }
+): Promise<boolean> {
+  const { creatorName, projectTitle, grossAmount, feeAmount, netAmount } = args
+  return sendEmail({
+    to,
+    subject: '【FanUp】売上を送金しました 💰',
+    html: layout(
+      `${creatorName} さん、売上を送金しました`,
+      `プロジェクト「${projectTitle}」の売上を、連携済みの Stripe アカウントへ送金しました。<br /><br />` +
+        `支援総額：<strong>¥${grossAmount.toLocaleString()}</strong><br />` +
+        `プラットフォーム手数料：− ¥${feeAmount.toLocaleString()}<br />` +
+        `<strong>お受け取り額：¥${netAmount.toLocaleString()}</strong><br /><br />` +
+        'ご登録の銀行口座への入金予定は Stripe ダッシュボードでご確認いただけます。',
+      { label: 'ダッシュボードを見る', href: `${appUrl}/creator` }
+    ),
+  })
+}
+
+// 送金保留通知（クリエイター向け）— 受取アカウント未連携・審査中などで送れなかった場合
+export async function sendPayoutBlockedEmail(
+  to: string,
+  args: { creatorName: string; projectTitle: string; netAmount: number; reason: string }
+): Promise<boolean> {
+  const { creatorName, projectTitle, netAmount, reason } = args
+  return sendEmail({
+    to,
+    subject: '【FanUp】売上の受け取りに設定が必要です',
+    html: layout(
+      `${creatorName} さん、受取設定をお願いします`,
+      `プロジェクト「${projectTitle}」の売上 <strong>¥${netAmount.toLocaleString()}</strong> をお送りしようとしましたが、${reason}。<br /><br />` +
+        'ダッシュボードから受取アカウントを設定していただければ、翌日以降に自動で再送金します。',
+      { label: '受取アカウントを設定する', href: `${appUrl}/creator` }
+    ),
+  })
+}
+
 // プロジェクト未達・返還通知（サポーター向け）
 export async function sendRefundEmail(to: string, projectTitle: string, points: number): Promise<boolean> {
   return sendEmail({

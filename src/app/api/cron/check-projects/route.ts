@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { sendProjectSucceededEmail, sendRefundEmail } from '@/lib/email'
+import { executePayout } from '@/lib/stripe/connect'
 
 // Cron 用のため service role で直接接続
 function createAdminClient() {
@@ -33,13 +34,9 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'プロジェクト取得失敗' }, { status: 500 })
   }
 
-  if (!expiredProjects || expiredProjects.length === 0) {
-    return NextResponse.json({ message: '処理対象なし' })
-  }
+  const results: { id: string; title: string; result: string }[] = []
 
-  const results: { id: number; title: string; result: string }[] = []
-
-  for (const project of expiredProjects) {
+  for (const project of expiredProjects ?? []) {
     const reached = project.current_points >= project.goal_points
 
     if (reached) {
@@ -65,10 +62,22 @@ export async function GET(request: Request) {
         }
       }
 
+      // 達成したら売上をクリエイターの Stripe Connect アカウントへ送金する。
+      // 未連携・残高不足などで失敗しても payouts に failed として残り、
+      // 下の再試行スイープが翌日以降に拾い直す。
+      let payoutNote = ''
+      if (!error) {
+        const payout = await executePayout(supabase, project.id)
+        payoutNote =
+          payout.status === 'paid'
+            ? `・送金完了 ¥${payout.net.toLocaleString()}`
+            : `・送金${payout.status === 'skipped' ? 'スキップ' : '保留'}（${payout.reason}）`
+      }
+
       results.push({
         id: project.id,
         title: project.title,
-        result: error ? `達成処理失敗: ${error.message}` : '達成',
+        result: error ? `達成処理失敗: ${error.message}` : `達成${payoutNote}`,
       })
     } else {
       // 未達成 → failed に変更 + ポイント返還
@@ -148,6 +157,38 @@ export async function GET(request: Request) {
     }
   }
 
-  console.log('Cron: check-projects 完了', results)
-  return NextResponse.json({ processed: results })
+  // ---------------------------------------------------------------------------
+  // 送金の再試行スイープ
+  // 未連携・残高不足で保留になった達成済みプロジェクトを拾い直す。
+  // executePayout は冪等なので、重複して送金されることはない。
+  // ---------------------------------------------------------------------------
+  const retried: { id: string; result: string }[] = []
+
+  const { data: pendingPayouts } = await supabase
+    .from('payouts')
+    .select('project_id')
+    .in('status', ['pending', 'failed'])
+    .order('created_at', { ascending: true })
+    .limit(50)
+
+  for (const payout of pendingPayouts ?? []) {
+    // このバッチで処理済みのプロジェクトは二度触らない
+    if (results.some(r => r.id === payout.project_id)) continue
+
+    const result = await executePayout(supabase, payout.project_id)
+    retried.push({
+      id: payout.project_id,
+      result:
+        result.status === 'paid'
+          ? `送金完了 ¥${result.net.toLocaleString()}`
+          : `${result.status === 'skipped' ? 'スキップ' : '保留'}: ${result.reason}`,
+    })
+  }
+
+  if (results.length === 0 && retried.length === 0) {
+    return NextResponse.json({ message: '処理対象なし' })
+  }
+
+  console.log('Cron: check-projects 完了', { results, retried })
+  return NextResponse.json({ processed: results, payout_retries: retried })
 }

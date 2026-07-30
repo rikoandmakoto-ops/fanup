@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe/server'
 import { createClient } from '@supabase/supabase-js'
+import { syncConnectAccount } from '@/lib/stripe/connect'
 import Stripe from 'stripe'
 
 // App Router ではデフォルトで body が parse されるため、
@@ -60,17 +61,28 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Missing stripe-signature header' }, { status: 400 })
   }
 
-  let event: Stripe.Event
+  // Connect（account.updated など）は別エンドポイント＝別の署名シークレットで
+  // 届くため、両方の秘密鍵で順に検証する。STRIPE_CONNECT_WEBHOOK_SECRET が
+  // 未設定なら従来どおり STRIPE_WEBHOOK_SECRET のみで検証する。
+  const secrets = [
+    process.env.STRIPE_WEBHOOK_SECRET,
+    process.env.STRIPE_CONNECT_WEBHOOK_SECRET,
+  ].filter((s): s is string => Boolean(s))
 
-  try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
-    )
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error'
-    console.error('Webhook signature verification failed:', message)
+  let event: Stripe.Event | null = null
+  let lastError = 'No webhook secret configured'
+
+  for (const secret of secrets) {
+    try {
+      event = stripe.webhooks.constructEvent(body, signature, secret)
+      break
+    } catch (err) {
+      lastError = err instanceof Error ? err.message : 'Unknown error'
+    }
+  }
+
+  if (!event) {
+    console.error('Webhook signature verification failed:', lastError)
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
@@ -120,6 +132,28 @@ export async function POST(request: Request) {
     }
 
     console.log(`Webhook: ${points}pt added to user ${userId} (session: ${session.id})`)
+  }
+
+  // Connect アカウントの審査状況が変わったら creators の連携ステータスを同期する。
+  // （オンボーディング復帰時にも同期しているが、後から審査が通る/制限される場合がある）
+  if (event.type === 'account.updated') {
+    const account = event.data.object as Stripe.Account
+    const supabase = createAdminClient()
+
+    const { data: creator } = await supabase
+      .from('creators')
+      .select('id')
+      .eq('stripe_connect_account_id', account.id)
+      .maybeSingle()
+
+    if (!creator) {
+      // FanUp が作成したアカウントでなければ何もしない（冪等に ack）
+      console.log(`Webhook: account ${account.id} に対応する creator なし、スキップ`)
+      return NextResponse.json({ received: true })
+    }
+
+    const status = await syncConnectAccount(supabase, creator.id, account)
+    console.log(`Webhook: creator ${creator.id} の Connect ステータスを ${status} に更新`)
   }
 
   return NextResponse.json({ received: true })
