@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 
+// 認証・DB アクセスを伴うためプリレンダリングせず、常にリクエスト毎に実行する
+export const dynamic = 'force-dynamic'
+
 // クリエイターのフォロー / フォロー解除 API
 // 認証は cookie ベースの SSR クライアント、書き込みは RLS を回避するため service role で行う
 function createAdminClient() {

@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+// 認証・DB アクセスを伴うためプリレンダリングせず、常にリクエスト毎に実行する
+export const dynamic = 'force-dynamic'
+
 // クリエイター申請 API
 export async function POST(request: Request) {
   // 認証ユーザーを取得

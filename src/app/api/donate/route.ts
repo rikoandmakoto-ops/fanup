@@ -3,6 +3,9 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendDonationReceivedEmail } from '@/lib/email'
 
+// 認証・DB アクセスを伴うためプリレンダリングせず、常にリクエスト毎に実行する
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: Request) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

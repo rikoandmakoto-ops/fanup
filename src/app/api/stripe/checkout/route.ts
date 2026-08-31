@@ -3,6 +3,9 @@ import { stripe } from '@/lib/stripe/server'
 import { createClient } from '@/lib/supabase/server'
 import { getAppUrl } from '@/lib/url'
 
+// 認証・DB アクセスを伴うためプリレンダリングせず、常にリクエスト毎に実行する
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: Request) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

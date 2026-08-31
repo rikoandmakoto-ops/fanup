@@ -3,6 +3,9 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { sendCreatorApprovedEmail, sendCreatorRejectedEmail } from '@/lib/email'
 
+// 認証・DB アクセスを伴うためプリレンダリングせず、常にリクエスト毎に実行する
+export const dynamic = 'force-dynamic'
+
 // 管理者がクリエイター申請を承認・却下する API
 // 認証は cookie ベースの SSR クライアントで行い、
 // 実際の更新は RLS を回避するため service role クライアントで実行する

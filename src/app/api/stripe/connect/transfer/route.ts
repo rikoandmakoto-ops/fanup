@@ -3,6 +3,9 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { executePayout } from '@/lib/stripe/connect'
 
+// 認証・DB アクセスを伴うためプリレンダリングせず、常にリクエスト毎に実行する
+export const dynamic = 'force-dynamic'
+
 // 達成済みプロジェクトの売上をクリエイターの Connect アカウントへ送金する API。
 //
 // 認可は 2 系統:

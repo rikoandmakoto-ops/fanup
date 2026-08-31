@@ -5,6 +5,9 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { syncConnectAccount } from '@/lib/stripe/connect'
 import { getAppUrl } from '@/lib/url'
 
+// 認証・DB アクセスを伴うためプリレンダリングせず、常にリクエスト毎に実行する
+export const dynamic = 'force-dynamic'
+
 // Stripe Connect（Express）アカウントの作成 / オンボーディングリンク発行 API。
 //
 // body.mode:

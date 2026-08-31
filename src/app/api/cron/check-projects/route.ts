@@ -3,6 +3,9 @@ import { createClient } from '@supabase/supabase-js'
 import { sendProjectSucceededEmail, sendRefundEmail } from '@/lib/email'
 import { executePayout } from '@/lib/stripe/connect'
 
+// 認証・DB アクセスを伴うためプリレンダリングせず、常にリクエスト毎に実行する
+export const dynamic = 'force-dynamic'
+
 // Cron 用のため service role で直接接続
 function createAdminClient() {
   return createClient(

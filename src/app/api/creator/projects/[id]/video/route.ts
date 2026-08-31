@@ -3,6 +3,9 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { VIDEO_BUCKET } from '@/lib/video'
 
+// 認証・DB アクセスを伴うためプリレンダリングせず、常にリクエスト毎に実行する
+export const dynamic = 'force-dynamic'
+
 const MAX_BYTES = 50 * 1024 * 1024 // 50MB（バケットの上限と揃える）
 const ALLOWED = ['video/mp4', 'video/webm', 'video/quicktime', 'video/ogg']
 const EXT: Record<string, string> = {
